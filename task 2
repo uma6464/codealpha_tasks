@@ -1,0 +1,181 @@
+import java.util.*;
+
+// ==============================
+//  STOCK CLASS
+// ==============================
+class Stock {
+    String symbol;
+    double price;
+
+    Stock(String symbol, double price) {
+        this.symbol = symbol;
+        this.price = price;
+    }
+
+    // Random price update (-5 to +5)
+    void updatePrice() {
+        double change = (Math.random() * 10) - 5;
+        price += change;
+        if (price < 1) price = 1;  // Minimum safety limit
+    }
+}
+
+// ==============================
+//  PORTFOLIO CLASS
+// ==============================
+class Portfolio {
+    double balance = 1000; // starting balance
+    HashMap<String, Integer> stocks = new HashMap<>();
+    ArrayList<String> history = new ArrayList<>();
+
+    void buyStock(String symbol, int qty, double price) {
+        double total = qty * price;
+
+        if (balance >= total) {
+            balance -= total;
+            stocks.put(symbol, stocks.getOrDefault(symbol, 0) + qty);
+            history.add("BOUGHT: " + qty + " of " + symbol + " @ " + price);
+            System.out.println("✔ Buy Successful!");
+        } else {
+            System.out.println(" Insufficient Balance!");
+        }
+    }
+
+    void sellStock(String symbol, int qty, double price) {
+        if (stocks.getOrDefault(symbol, 0) >= qty) {
+            stocks.put(symbol, stocks.get(symbol) - qty);
+            balance += qty * price;
+            history.add("SOLD  : " + qty + " of " + symbol + " @ " + price);
+            System.out.println("✔ Sell Successful!");
+        } else {
+            System.out.println(" Not Enough Shares!");
+        }
+    }
+
+    void showPortfolio() {
+        System.out.println("\n=== PORTFOLIO ===");
+        System.out.println("Available Balance: $" + balance);
+        System.out.println("Owned Stocks: " + stocks);
+    }
+
+    void showHistory() {
+        System.out.println("\n=== TRANSACTION HISTORY ===");
+        if (history.size() == 0)
+            System.out.println("No transactions yet.");
+        else
+            for (String h : history) System.out.println(h);
+    }
+}
+
+// ==============================
+//  MARKET CLASS
+// ==============================
+class Market {
+    ArrayList<Stock> stocks = new ArrayList<>();
+
+    Market() {
+        stocks.add(new Stock("AAPL", 150));  // Apple
+        stocks.add(new Stock("GOOG", 2800)); // Google
+        stocks.add(new Stock("TSLA", 700));  // Tesla
+        stocks.add(new Stock("AMZN", 3300)); // Amazon
+    }
+
+    void updatePrices() {
+        for (Stock s : stocks) s.updatePrice();
+    }
+
+    void showMarket() {
+        System.out.println("\n=== LIVE MARKET PRICES ===");
+        System.out.println("Symbol\tPrice");
+
+        for (Stock s : stocks)
+            System.out.println(s.symbol + "\t" + String.format("%.2f", s.price));
+    }
+
+    Stock getStock(String symbol) {
+        for (Stock s : stocks)
+            if (s.symbol.equalsIgnoreCase(symbol))
+                return s;
+        return null;
+    }
+}
+
+// ==============================
+//  MAIN TRADING APP
+// ==============================
+public class StockTradingApp {
+
+    public static void main(String[] args) {
+
+        Scanner sc = new Scanner(System.in);
+        Market market = new Market();
+        Portfolio portfolio = new Portfolio();
+
+        while (true) {
+
+            System.out.println("\n===== STOCK TRADING MENU =====");
+            System.out.println("1. View Market Prices");
+            System.out.println("2. Buy Stock");
+            System.out.println("3. Sell Stock");
+            System.out.println("4. View Portfolio");
+            System.out.println("5. Transaction History");
+            System.out.println("6. Exit");
+            System.out.print("Enter Your Choice: ");
+
+            int choice = sc.nextInt();
+
+            // Update price before each market action
+            market.updatePrices();
+
+            switch (choice) {
+
+                case 1:
+                    market.showMarket();
+                    break;
+
+                case 2:
+                    System.out.print("Enter Stock Symbol to Buy: ");
+                    String symBuy = sc.next();
+
+                    System.out.print("Enter Qty: ");
+                    int qtyBuy = sc.nextInt();
+
+                    Stock stockBuy = market.getStock(symBuy);
+                    if (stockBuy != null)
+                        portfolio.buyStock(symBuy, qtyBuy, stockBuy.price);
+                    else
+                        System.out.println(" Invalid Stock Symbol!");
+                    break;
+
+                case 3:
+                    System.out.print("Enter Stock Symbol to Sell: ");
+                    String symSell = sc.next();
+
+                    System.out.print("Enter Qty: ");
+                    int qtySell = sc.nextInt();
+
+                    Stock stockSell = market.getStock(symSell);
+                    if (stockSell != null)
+                        portfolio.sellStock(symSell, qtySell, stockSell.price);
+                    else
+                        System.out.println(" Invalid Stock Symbol!");
+                    break;
+
+                case 4:
+                    portfolio.showPortfolio();
+                    break;
+
+                case 5:
+                    portfolio.showHistory();
+                    break;
+
+                case 6:
+                    System.out.println("Exiting Trading Platform...");
+                    return;
+
+                default:
+                    System.out.println(" Invalid Option!");
+            }
+        }
+    }
+}
