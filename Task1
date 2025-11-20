@@ -1,0 +1,78 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+
+class Student {
+    String name;
+    int mark;
+
+    Student(String name, int mark) {
+        this.name = name;
+        this.mark = mark;
+    }
+}
+
+public class StudentGradeTracker {
+
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        ArrayList<Student> students = new ArrayList<>();
+
+        while (true) {
+            System.out.println("\n--- STUDENT GRADE TRACKER ---");
+            System.out.println("1. Add Student");
+            System.out.println("2. View Summary Report");
+            System.out.println("3. Exit");
+            System.out.print("Choose option: ");
+            int choice = sc.nextInt();
+
+            switch (choice) {
+                case 1:
+                    sc.nextLine();  // clear buffer
+                    System.out.print("Enter Student Name: ");
+                    String name = sc.nextLine();
+
+                    System.out.print("Enter Student Mark: ");
+                    int mark = sc.nextInt();
+
+                    students.add(new Student(name, mark));
+                    System.out.println("Student Added Successfully!");
+                    break;
+
+                case 2:
+                    if (students.isEmpty()) {
+                        System.out.println("No student data available.");
+                        break;
+                    }
+
+                    int total = 0, highest = students.get(0).mark, lowest = students.get(0).mark;
+
+                    System.out.println("\n--- STUDENT REPORT ---");
+                    for (Student s : students) {
+                        System.out.println(s.name + " - " + s.mark);
+                        total += s.mark;
+
+                        if (s.mark > highest) highest = s.mark;
+                        if (s.mark < lowest) lowest = s.mark;
+                    }
+
+                    double average = (double) total / students.size();
+
+                    System.out.println("-----------------------------");
+                    System.out.println("Total Students: " + students.size());
+                    System.out.println("Average Score: " + average);
+                    System.out.println("Highest Score: " + highest);
+                    System.out.println("Lowest Score: " + lowest);
+                    System.out.println("-----------------------------");
+                    break;
+
+                case 3:
+                    System.out.println("Exiting program...");
+                    return;
+
+                default:
+                    System.out.println("Invalid choice. Try again.");
+            }
+        }
+    }
+}
+
